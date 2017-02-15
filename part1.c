@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -87,6 +88,7 @@ bool isNumber(char* input)
 */
 int main(int argc, char* argv[])
 {
+  
   int thread_count, i;
   
   void* ThreadedAction(void* parameter) {
@@ -127,5 +129,6 @@ int main(int argc, char* argv[])
   }
   
   pthread_exit(NULL);
+  return 0;
   
 }
