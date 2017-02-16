@@ -2,7 +2,7 @@
 #include <linux/sched.h>
 #include <linux/fs/proc/array.c>
  struct task_struct *task, *t;
- 
+
 
 static int hello_init(void)
 {
@@ -10,10 +10,10 @@ static int hello_init(void)
     {
 	t = task;
 	do {
-      		 printk("Name: %s PID: [%d], parentPID: [%d] state: %s\n", t->comm, t->pid,t->parent->pid, get_task_state(t));
+      		 printk("Name: %s PID: [%d], parentPID: [%d] state: %s\n", t->comm, t->pid,t->parent->pid, t->state);
 	}while_each_thread(task, t);
-     } 
- 
+     }
+
   return 0;
 }
 
