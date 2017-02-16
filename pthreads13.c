@@ -1,20 +1,17 @@
 #include <linux/module.h>
 #include <linux/sched.h>
-#include <linux/fs/proc/array.c>
- struct task_struct *task, *t;
+struct task_struct *task, *t;
 
 
 static int hello_init(void)
 {
-   for_each_process(task)
-    {
-	t = task;
-	do {
-      		 printk("Name: %s PID: [%d], parentPID: [%d] state: %s\n", t->comm, t->pid,t->parent->pid, t->state);
-	}while_each_thread(task, t);
+    for_each_process(task){
+	       t = task;
+           do {
+               printk("Name: %s PID: [%d], parentPID: [%d] state: %ld\n", t->comm, t->pid,t->parent->pid, t->state);
+           }while_each_thread(task, t);
      }
-
-  return 0;
+       return 0;
 }
 
 static void hello_exit(void)
