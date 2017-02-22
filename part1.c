@@ -9,6 +9,7 @@ typedef enum {true, false} bool;
 
 int SharedVariable = 0;
 pthread_barrier_t barrier;
+pthread_barrier_t syscall_barrier;
 pthread_mutex_t mutex;
 
 /**
@@ -16,6 +17,14 @@ pthread_mutex_t mutex;
 */
 void SimpleThread(int thredID)
 {
+    #ifdef SYSCALL_SYNC
+      int barrier_wait_code2 = pthread_barrier_wait(&syscall_barrier);
+        if (barrier_wait_code2 &&
+            barrier_wait_code2 != PTHREAD_BARRIER_SERIAL_THREAD) {
+            printf("Could not wait on barrier\n");
+            exit(-1);
+        }
+    #endif
   int num, val;
 
   for (num = 0; num < 20; num++) {
@@ -44,6 +53,15 @@ void SimpleThread(int thredID)
         printf("Could not wait on barrier\n");
         exit(-1);
     }
+  #endif
+
+  #ifdef SYSCALL_SYNC
+    barrier_wait_code2 = pthread_barrier_wait(&syscall_barrier);
+      if (barrier_wait_code2 &&
+          barrier_wait_code2 != PTHREAD_BARRIER_SERIAL_THREAD) {
+          printf("Could not wait on barrier\n");
+          exit(-1);
+      }
   #endif
 
   val = SharedVariable;
@@ -114,6 +132,11 @@ int main(int argc, char* argv[])
     printf("Error initializing pthread barrier!\n");
     return -1;
   }
+  //syscall barrier will make all n threads wait for the system call to happen to ensure it happens after they start but before they finish.
+  if (pthread_barrier_init(&syscall_barrier, NULL, thread_count+1)) {
+    printf("Error initializing syscall barrier!\n");
+    return -1;
+  }
   if (pthread_mutex_init(&mutex, NULL)) {
     printf("Error initializing mutex!\n");
     return -1;
@@ -128,8 +151,22 @@ int main(int argc, char* argv[])
 
     printf("Created Thread %d\n", i);
   }
-  printf("%d\n", syscall(__NR_fajet_mizrahi_paragas));
+  #ifdef SYSCALL_SYNC
+      int barrier_wait_code = pthread_barrier_wait(&syscall_barrier);
+      if (barrier_wait_code &&
+          barrier_wait_code != PTHREAD_BARRIER_SERIAL_THREAD) {
+          printf("Could not wait on barrier\n");
+          exit(-1);
+      }
+    printf("%ld\n", syscall(__NR_fajet_mizrahi_paragas));
 
+     barrier_wait_code = pthread_barrier_wait(&syscall_barrier);
+    if (barrier_wait_code &&
+        barrier_wait_code != PTHREAD_BARRIER_SERIAL_THREAD) {
+        printf("Could not wait on barrier\n");
+        exit(-1);
+    }
+  #endif
 
 
   pthread_exit(NULL);
