@@ -4,6 +4,7 @@
 #include <semaphore.h>
 #include <pthread.h>
 
+
 typedef enum {true, false} bool;
 
 sem_t room_lock;
@@ -15,6 +16,7 @@ pthread_t* reporter_list;
 pthread_t speaker;
 
 int chosen_reporter_id;
+
 
 /**
 * Checks if the string is a number
